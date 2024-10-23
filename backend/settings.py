@@ -31,8 +31,8 @@ SECRET_KEY  = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG","FALSE").lower()=="TRUE"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOTS").split(" ")
-# ALLOWED_HOSTS = ['todo-app-django-react-3o9g.vercel.app']
+#ALLOWED_HOSTS = os.environ.get("ALLOWED_HOTS").split(" ")
+ALLOWED_HOSTS = ['todo-app-django-react-3o9g.vercel.app']
 # Application definition
 
 INSTALLED_APPS = [
