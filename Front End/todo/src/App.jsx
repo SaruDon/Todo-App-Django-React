@@ -7,18 +7,18 @@ import TodoBody from "./components/TodoBody";
 
 function App() {
   const[erros,setErros] = useState("")
-
-
-
+  const [loading, setLoading] = useState(false); // Add loading state
   const [todos, setTodos] = useState([
   ]);
 
   useEffect(()=>{
+    setLoading(true); // Set loading to true before fetching data
     axios.get("https://todo-app-django-react-1.onrender.com/todos")
     .then(res =>{
       setTodos(res.data)
     })
     .catch(err=> setErros(err.message))
+    .finally(() => setLoading(false));
   },[setTodos]);
 
 
@@ -26,6 +26,7 @@ function App() {
   const addTodo = (data) => {
     // Making a POST request to add the todo
     const originalTodos = [...todos]
+    setLoading(true); // Set loading to true before making a request
     axios.post("https://todo-app-django-react-1.onrender.com/todos", data)
     .then(res => {
         // Append the newly created todo (from response) to the state
@@ -34,7 +35,8 @@ function App() {
     .catch(err => {
         setErros(err.message);
         setTodos[originalTodos]; // the the add function fails then just replace it with previous list of todos
-    });
+    })
+    .finally(() => setLoading(false)); // Set loading to false after request;
   };
 
 
@@ -42,8 +44,10 @@ function App() {
   const delTodo = (id) => {
     setTodos(todos.filter( todo => todo.id != id ))
     const originalTodos = [...todos]
+    setLoading(true); // Set loading to true before making a request
     axios.delete("https://todo-app-django-react-1.onrender.com/todos/" + id)
     .catch(err=>setErros(err.message))
+    .finally(() => setLoading(false));
   }
 
 
@@ -58,6 +62,7 @@ function App() {
     setTodos(todos.map(t => t.id === id ? updatedTodo : t));
 
     // Send the updated todo to the backend using a PATCH request
+    setLoading(true);
     axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
@@ -66,7 +71,8 @@ function App() {
       })
       .catch((err) => {
         console.error("Error updating todo:", err);
-      });
+      })
+      .finally(() => setLoading(false));;
 };
 
 
@@ -77,6 +83,7 @@ function App() {
       setTodos(todos.map(todo => todo.id == id ? { ...todo, completed:true}: todo))
 
       const updatedTodo ={...todo,completed:true}
+      setLoading(true);
       axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
@@ -85,13 +92,15 @@ function App() {
       })
       .catch((err) => {
         console.error("Error updating todo:", err);
-      });
+      })
+      .finally(() => setLoading(false)); // Set loading to false after request;
     }
     else
     {
       console.log("omo")
       setTodos(todos.map(todo => todo.id == id ? { ...todo, status:false}: todo))
       const updatedTodo ={...todo,completed:false}
+      setLoading(true); // Set loading to true before making a request
       axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
@@ -100,7 +109,8 @@ function App() {
       })
       .catch((err) => {
         console.error("Error updating todo:", err);
-      });
+      })
+      .finally(() => setLoading(false));
     }
 
    
@@ -114,10 +124,16 @@ function App() {
 
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
-      {erros && <p>{erros}</p>}
-      <TodoBody/>
-      <TodoSearch addTodo = { addTodo } />
-      <TodoList todos = { todos } delTodo = { delTodo } update_todo = { updateTodo } complete_todo = { completeTodo } filter_todo = { filterTodo } />
+      {erros && <p className="text-red-500">{erros}</p>}
+      {loading ? ( // Conditional rendering for loader
+        <p>Loading...</p> // You can replace this with a spinner or any loader component
+      ) : (
+        <>
+          <TodoBody />
+          <TodoSearch addTodo={addTodo} />
+          <TodoList todos={todos} delTodo={delTodo} update_todo={updateTodo} complete_todo={completeTodo} filter_todo={filterTodo} />
+        </>
+      )}
     </div>
   );
 }
