@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import django_heroku
+import os
 import dj_database_url
 
 
@@ -24,14 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y)$x6k9+=8w(33!pg#123@ni1z%@!%5l(va7vt#)zpndh^6a_v'
+# SECRET_KEY = 'django-insecure-y)$x6k9+=8w(33!pg#123@ni1z%@!%5l(va7vt#)zpndh^6a_v'
+SECRET_KEY  = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG","FALSE").lower()=="TRUE"
 
-ALLOWED_HOSTS = ['todo-app-django-react-3o9g.vercel.app']
-
-
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOTS").split(" ")
+# ALLOWED_HOSTS = ['todo-app-django-react-3o9g.vercel.app']
 # Application definition
 
 INSTALLED_APPS = [
