@@ -10,6 +10,8 @@ function App() {
   const [loading, setLoading] = useState(false); // Add loading state
   const [todos, setTodos] = useState([
   ]);
+  const [updatingTodos, setUpdatingTodos] = useState(new Set()); // Set to track todos being updated
+
 
   useEffect(()=>{
     setLoading(true); // Set loading to true before fetching data
@@ -87,20 +89,39 @@ const addTodo = async (data) => {
 
 
 const completeTodo = async (e, id, todo) => {
-  const updatedTodo = { ...todo, completed: e.target.checked }; // Prepare the updated todo object
+  const updatedTodo = { ...todo, completed: e.target.checked };
 
-  // Update local state optimistically
+  // Avoid updates while the current todo is already being updated
+  if (updatingTodos.has(id)) {
+    return; // If the todo is already being updated, we skip it
+  }
+
+  // Add the todo to the set of updating items
+  setUpdatingTodos(new Set(updatingTodos).add(id));
+
+  // Optimistically update the local state
   setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
 
   try {
-      const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      console.log("Update successful:", res.data);
-      setTodos(todos.map(t => (t.id === id ? res.data : t)));
+    const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
+    
+    // Ensure the state didn't change while the request was pending
+    setTodos(todos => 
+      todos.map(t => (t.id === id && t.completed === updatedTodo.completed ? res.data : t))
+    );
   } catch (err) {
-      console.error("Error updating todo:", err);
-      // Optionally revert the local state if the update fails
-      setTodos(todos.map(t => (t.id === id ? todo : t)));
-  } 
+    console.error("Error updating todo:", err);
+
+    // Optionally revert the local state if the update fails
+    setTodos(todos.map(t => (t.id === id ? todo : t)));
+  } finally {
+    // Remove the todo from the updating set
+    setUpdatingTodos(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+  }
 };
 
   const filterTodo = (cat_value) => {
