@@ -125,15 +125,13 @@ function App() {
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
       {erros && <p className="text-red-500">{erros}</p>}
-      {loading ? ( // Conditional rendering for loader
-        <p>Loading...</p> // You can replace this with a spinner or any loader component
-      ) : (
+      
         <>
           <TodoBody />
           <TodoSearch addTodo={addTodo} />
           <TodoList todos={todos} delTodo={delTodo} update_todo={updateTodo} complete_todo={completeTodo} filter_todo={filterTodo} />
         </>
-      )}
+      
     </div>
   );
 }
