@@ -14,7 +14,7 @@ function App() {
   ]);
 
   useEffect(()=>{
-    axios.get("http://127.0.0.1:8000/todos")
+    axios.get("https://todo-app-django-react-1.onrender.com/todos")
     .then(res =>{
       setTodos(res.data)
     })
@@ -26,7 +26,7 @@ function App() {
   const addTodo = (data) => {
     // Making a POST request to add the todo
     const originalTodos = [...todos]
-    axios.post("http://127.0.0.1:8000/todos", data)
+    axios.post("https://todo-app-django-react-1.onrender.com/todos", data)
     .then(res => {
         // Append the newly created todo (from response) to the state
         setTodos([...todos, res.data]);
@@ -42,7 +42,7 @@ function App() {
   const delTodo = (id) => {
     setTodos(todos.filter( todo => todo.id != id ))
     const originalTodos = [...todos]
-    axios.delete("http://127.0.0.1:8000/todos/" + id)
+    axios.delete("https://todo-app-django-react-1.onrender.com/todos/" + id)
     .catch(err=>setErros(err.message))
   }
 
@@ -58,7 +58,7 @@ function App() {
     setTodos(todos.map(t => t.id === id ? updatedTodo : t));
 
     // Send the updated todo to the backend using a PATCH request
-    axios.patch(`http://127.0.0.1:8000/todos/${id}`, updatedTodo)
+    axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
         // Optionally update the state with the response (if it has additional fields like a new timestamp)
@@ -77,7 +77,7 @@ function App() {
       setTodos(todos.map(todo => todo.id == id ? { ...todo, completed:true}: todo))
 
       const updatedTodo ={...todo,completed:true}
-      axios.patch(`http://127.0.0.1:8000/todos/${id}`, updatedTodo)
+      axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
         // Optionally update the state with the response (if it has additional fields like a new timestamp)
@@ -92,7 +92,7 @@ function App() {
       console.log("omo")
       setTodos(todos.map(todo => todo.id == id ? { ...todo, status:false}: todo))
       const updatedTodo ={...todo,completed:false}
-      axios.patch(`http://127.0.0.1:8000/todos/${id}`, updatedTodo)
+      axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo)
       .then((res) => {
         console.log("Update successful:", res.data);
         // Optionally update the state with the response (if it has additional fields like a new timestamp)
