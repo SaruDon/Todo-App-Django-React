@@ -15,7 +15,7 @@ from decouple import config
 import django_heroku
 import os
 import dj_database_url
-
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,8 +31,8 @@ SECRET_KEY  = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG","FALSE").lower()=="TRUE"
 
-#ALLOWED_HOSTS = os.environ.get("ALLOWED_HOTS").split(" ")
-ALLOWED_HOSTS = ['todo-app-django-react-3o9g.vercel.app']
+load_dotenv()
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,13 +61,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-CORS_ALLOW_ALL_ORIGINS = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://127.0.0.1:8000",
-#     "http://localhost:5174",
-# ]
-
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS').split(',')
 
 TEMPLATES = [
     {
