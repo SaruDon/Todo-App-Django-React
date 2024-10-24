@@ -63,30 +63,37 @@ function App() {
     } catch (err) {
       setErrors(err.message);
       setTodos(originalTodos);
-      toast.error('Failed to delete todo', { position: 'top-right' });
+      toast.error('Failed to delete todo try again', { position: 'top-right' });
     }
   };
 
   // Update function
   const updateTodo = async (e, id, text, todo) => {
     e.preventDefault();
-    const updatedTodo = { ...todo, task: text, status: "Active" };
-    const originalTodos = [...todos];
     
+    const updatedTodo = { ...todo, task: text, status: "Active" };
+    const originalTodos = [...todos];  // Backup original todos
+    const originalFilteredTodos = [...filteredTodos];  // Backup original filteredTodos
+    
+    // Optimistically update the state before the API call
     setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
     setFilteredTodos(filteredTodos.map(t => (t.id === id ? updatedTodo : t)));
-
+    
     setLoading(true);
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      console.log(res)
+      console.log(res);
       toast.success('Todo updated successfully', { position: 'top-right' });
     } catch (err) {
+      // Revert back to the original state on failure
+      setTodos(originalTodos);
+      setFilteredTodos(originalFilteredTodos);
       toast.error('Failed to update todo', { position: 'top-right' });
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Complete Todo
   const completeTodo = async (e, id, todo) => {
@@ -113,7 +120,6 @@ function App() {
 
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
-      {errors && <p className="text-red-500">{errors}</p>}
       <>
         <TodoBody />
         <TodoSearch addTodo={addTodo} />
