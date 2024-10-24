@@ -7,62 +7,57 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const [errors, setErrors] = useState("");
+  const [errors, setErrors] = useState(null);
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState([]);
   const [updatingTodos, setUpdatingTodos] = useState(new Set());
+  const [filteredTodos, setFilteredTodos] = useState([]);
 
   useEffect(() => {
     setLoading(true);
-    console.log("getting data");
-
     axios.get("https://todo-app-django-react-1.onrender.com/todos")
       .then(res => {
         setTodos(res.data);
-        console.log("Data received from API:", res.data); // Log the data received
+        setFilteredTodos(res.data); // Set filtered todos initially
         toast.success('Todos loaded successfully', { position: 'top-right' });
       })
       .catch(err => {
         setErrors(err.message);
-        console.error("Error fetching data:", err.message); // Log the error if it occurs
         toast.error('Failed to load todos', { position: 'top-right' });
       })
       .finally(() => setLoading(false));
-
-    console.log("API request sent"); // Log when the request is sent
-}, [setTodos]);
+  }, []);
 
   // Add todo function
   const addTodo = async (data) => {
-    const originalTodos = [...todos];  // Backup of the original todos
-    const newTodo = { ...data, status: 'Active' };  // Set status locally to 'pending'
-    
-    // Optimistically update the local state by adding the new todo with 'pending' status
+    const originalTodos = [...todos];
+    const newTodo = { ...data, status: 'Active' };
+
+    // Optimistically update the UI
     setTodos([...todos, newTodo]);
-  
+    setFilteredTodos([...filteredTodos, newTodo]);
+
     setLoading(true);
-  
     try {
-      // Make the API call to save the new todo on the server
       const res = await axios.post("https://todo-app-django-react-1.onrender.com/todos", data);
-      console.log(res); 
+      setTodos(prevTodos => prevTodos.map(todo => (todo === newTodo ? res.data : todo)));
+      setFilteredTodos(prevTodos => prevTodos.map(todo => (todo === newTodo ? res.data : todo)));
       toast.success('Todo added successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
-      // If there's an error, revert back to the original state
       setErrors(err.message);
-      setTodos(originalTodos);  // Revert to original todos array
+      setTodos(originalTodos); // Revert to the original todos
+      setFilteredTodos(originalTodos);
       toast.error('Failed to add todo', { position: toast.POSITION.TOP_RIGHT });
     } finally {
       setLoading(false);
     }
   };
-  
 
   // Delete function
   const delTodo = async (id) => {
     const originalTodos = [...todos];
-
     setTodos(todos.filter(todo => todo.id !== id));
+    setFilteredTodos(filteredTodos.filter(todo => todo.id !== id));
 
     try {
       await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
@@ -70,6 +65,7 @@ function App() {
     } catch (err) {
       setErrors(err.message);
       setTodos(originalTodos);
+      setFilteredTodos(originalTodos);
       toast.error('Failed to delete todo', { position: toast.POSITION.TOP_RIGHT });
     }
   };
@@ -78,36 +74,44 @@ function App() {
   const updateTodo = async (e, id, text, todo) => {
     e.preventDefault();
     const updatedTodo = { ...todo, task: text, status: "Active" };
-    setTodos([...todos,updateTodo])
+    const originalTodos = [...todos];
+    
+    setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
+    setFilteredTodos(filteredTodos.map(t => (t.id === id ? updatedTodo : t)));
+
     setLoading(true);
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      // setTodos(todos.map(t => (t.id === id ? res.data : t)));
-      console.log(res)
+      setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      setFilteredTodos(filteredTodos.map(t => (t.id === id ? res.data : t)));
       toast.success('Todo updated successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
+      setErrors(err.message);
+      setTodos(originalTodos); // Revert to the original todos
+      setFilteredTodos(originalTodos);
       toast.error('Failed to update todo', { position: toast.POSITION.TOP_RIGHT });
     } finally {
       setLoading(false);
     }
   };
 
+  // Complete Todo
   const completeTodo = async (e, id, todo) => {
     const updatedTodo = { ...todo, completed: e.target.checked };
-
-    if (updatingTodos.has(id)) {
-      return;
-    }
+    if (updatingTodos.has(id)) return;
 
     setUpdatingTodos(new Set(updatingTodos).add(id));
     setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
+    setFilteredTodos(filteredTodos.map(t => (t.id === id ? updatedTodo : t)));
 
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      setTodos(todos => todos.map(t => (t.id === id && t.completed === updatedTodo.completed ? res.data : t)));
+      setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      setFilteredTodos(filteredTodos.map(t => (t.id === id ? res.data : t)));
       toast.success('Todo completed status updated', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
       setTodos(todos.map(t => (t.id === id ? todo : t)));
+      setFilteredTodos(filteredTodos.map(t => (t.id === id ? todo : t)));
       toast.error('Failed to update todo status', { position: toast.POSITION.TOP_RIGHT });
     } finally {
       setUpdatingTodos(prev => {
@@ -119,7 +123,7 @@ function App() {
   };
 
   const filterTodo = (cat_value) => {
-    setTodos(todos.filter(todo => todo.status === cat_value));
+    setFilteredTodos(todos.filter(todo => todo.status === cat_value));
   };
 
   return (
@@ -128,7 +132,13 @@ function App() {
       <>
         <TodoBody />
         <TodoSearch addTodo={addTodo} />
-        <TodoList todos={todos} delTodo={delTodo} update_todo={updateTodo} complete_todo={completeTodo} filter_todo={filterTodo} />
+        <TodoList 
+          todos={filteredTodos} 
+          delTodo={delTodo} 
+          update_todo={updateTodo} 
+          complete_todo={completeTodo} 
+          filter_todo={filterTodo} 
+        />
         <ToastContainer />
       </>
     </div>
