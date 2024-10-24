@@ -1,154 +1,125 @@
 import { useEffect, useState } from "react";
 import TodoSearch from "./components/TodoSearch";
 import TodoList from "./components/TodoList";
-import axios from 'axios'
-
+import axios from 'axios';
 import TodoBody from "./components/TodoBody";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const[errors,setErrors] = useState("")
-  const [loading, setLoading] = useState(false); // Add loading state
-  const [todos, setTodos] = useState([
-  ]);
-  const [updatingTodos, setUpdatingTodos] = useState(new Set()); // Set to track todos being updated
+  const [errors, setErrors] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [todos, setTodos] = useState([]);
+  const [updatingTodos, setUpdatingTodos] = useState(new Set());
 
-
-  useEffect(()=>{
-    setLoading(true); // Set loading to true before fetching data
-    console.log("gettingd data");
+  useEffect(() => {
+    setLoading(true);
+    console.log("getting data");
     axios.get("https://todo-app-django-react-1.onrender.com/todos")
-    .then(res =>{
-      setTodos(res.data)
-    })
-    .catch(err=> setErrors(err.message))
-    .finally(() => setLoading(false));
+      .then(res => {
+        setTodos(res.data);
+        toast.success('Todos loaded successfully', { position: toast.POSITION.TOP_RIGHT });
+      })
+      .catch(err => {
+        setErrors(err.message);
+        toast.error('Failed to load todos', { position: toast.POSITION.TOP_RIGHT });
+      })
+      .finally(() => setLoading(false));
     console.log("got data");
-  },[setTodos]);
+  }, [setTodos]);
 
+  // Add todo function
+  const addTodo = async (data) => {
+    const originalTodos = [...todos];
+    setLoading(true);
 
-// add todo function
-const addTodo = async (data) => {
-  const originalTodos = [...todos];
-  setLoading(true); // Set loading to true before making a request
-
-  //! 1st wirte the data to database and then make local changes to unsure consistency
-
-  try {
+    try {
       const res = await axios.post("https://todo-app-django-react-1.onrender.com/todos", data);
       setTodos([...todos, res.data]);
-  } catch (err) {
+      toast.success('Todo added successfully', { position: toast.POSITION.TOP_RIGHT });
+    } catch (err) {
       setErrors(err.message);
-      setTodos(originalTodos); // If the add function fails, replace with the previous list of todos
-  } finally {
-      setLoading(false); 
-  }
-};
+      setTodos(originalTodos);
+      toast.error('Failed to add todo', { position: toast.POSITION.TOP_RIGHT });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
-  // delete function
+  // Delete function
   const delTodo = async (id) => {
-    const originalTodos = [...todos]; 
-
-
-    //! Here locallly update state 1st as we might delete more task a once
+    const originalTodos = [...todos];
 
     setTodos(todos.filter(todo => todo.id !== id));
 
     try {
-        await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
-        console.log("Todo deleted successfully");
+      await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
+      toast.success('Todo deleted successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
-        console.error("Error deleting todo:", err);
-        setErrors(err.message); 
-        setTodos(originalTodos);
-    } 
-};
+      setErrors(err.message);
+      setTodos(originalTodos);
+      toast.error('Failed to delete todo', { position: toast.POSITION.TOP_RIGHT });
+    }
+  };
 
-
-
-  // update function
+  // Update function
   const updateTodo = async (e, id, text, todo) => {
     e.preventDefault();
-
     const updatedTodo = { ...todo, task: text, status: "Active" };
 
-    setLoading(true); 
-    //! Update in database 1t them in state
+    setLoading(true);
     try {
-        // Send the updated todo to the backend using a PATCH request
-        const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-        console.log("Update successful:", res.data);
-        
-        setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
+      setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      toast.success('Todo updated successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
-        console.error("Error updating todo:", err);
+      toast.error('Failed to update todo', { position: toast.POSITION.TOP_RIGHT });
     } finally {
-        setLoading(false); // Set loading to false after the request
+      setLoading(false);
     }
-};
+  };
 
+  const completeTodo = async (e, id, todo) => {
+    const updatedTodo = { ...todo, completed: e.target.checked };
 
+    if (updatingTodos.has(id)) {
+      return;
+    }
 
-const completeTodo = async (e, id, todo) => {
-  const updatedTodo = { ...todo, completed: e.target.checked };
+    setUpdatingTodos(new Set(updatingTodos).add(id));
+    setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
 
-  // Avoid updates while the current todo is already being updated
-  if (updatingTodos.has(id)) {
-    return; // If the todo is already being updated, we skip it
-  }
-
-  // Add the todo to the set of updating items
-  setUpdatingTodos(new Set(updatingTodos).add(id));
-
-  // Optimistically update the local state
-  setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
-
-  try {
-    const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-    
-    // Ensure the state didn't change while the request was pending
-    setTodos(todos => 
-      todos.map(t => (t.id === id && t.completed === updatedTodo.completed ? res.data : t))
-    );
-  } catch (err) {
-    console.error("Error updating todo:", err);
-
-    // Optionally revert the local state if the update fails
-    setTodos(todos.map(t => (t.id === id ? todo : t)));
-  } finally {
-    // Remove the todo from the updating set
-    setUpdatingTodos(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(id);
-      return newSet;
-    });
-  }
-};
+    try {
+      const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
+      setTodos(todos => todos.map(t => (t.id === id && t.completed === updatedTodo.completed ? res.data : t)));
+      toast.success('Todo completed status updated', { position: toast.POSITION.TOP_RIGHT });
+    } catch (err) {
+      setTodos(todos.map(t => (t.id === id ? todo : t)));
+      toast.error('Failed to update todo status', { position: toast.POSITION.TOP_RIGHT });
+    } finally {
+      setUpdatingTodos(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
+  };
 
   const filterTodo = (cat_value) => {
-    // setTodos(todos.filter(todo => todo.status == cat_value))
-    setTodos(todos.filter((todo) => todo.status == cat_value))
-  }
-
+    setTodos(todos.filter(todo => todo.status === cat_value));
+  };
 
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
       {errors && <p className="text-red-500">{errors}</p>}
-        <>
-
-          <TodoBody />
-          <TodoSearch addTodo={addTodo} />
-          <TodoList todos={todos} delTodo={delTodo} update_todo={updateTodo} complete_todo={completeTodo} filter_todo={filterTodo} />
-        
-          </>
- 
+      <>
+        <TodoBody />
+        <TodoSearch addTodo={addTodo} />
+        <TodoList todos={todos} delTodo={delTodo} update_todo={updateTodo} complete_todo={completeTodo} filter_todo={filterTodo} />
+        <ToastContainer />
+      </>
     </div>
   );
 }
-
-
 
 export default App;
