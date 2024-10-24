@@ -26,12 +26,6 @@ def todo_list(request):
         return Response(serializer.data)
     
 
-    
-@api_view(["DELETE"])
-def delete_all_todos():
-    Todo.objects.all().delete()
-    
-
   
 # Get Todo By id
 @api_view(["PUT","GET","PATCH","DELETE"])

@@ -121,21 +121,7 @@ function App() {
     setFilteredTodos(todos.filter(todo => todo.status === cat_value));
   };
 
-  const clearTodos = async () => {
-    const originalTodos = [...todos];
 
-    setTodos([]); 
-    setFilteredTodos([]); 
-
-    try {
-      await axios.delete("https://todo-app-django-react-1.onrender.com/todosdel"); // Delete all todos
-      toast.success('All todos deleted successfully', { position: 'top-right' });
-    } catch (err) {
-      setTodos(originalTodos); // Restore the original state on failure
-      setFilteredTodos(originalTodos);
-      toast.error('Failed to delete all todos', { position: 'top-right' });
-    }
-  };
 
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
@@ -149,12 +135,6 @@ function App() {
           complete_todo={completeTodo} 
           filter_todo={filterTodo} 
         />
-        <button 
-        onClick={clearTodos} 
-        className="mb-4 h-10 w-full bg-red-600 text-white rounded-lg cursor-pointer transition duration-300 hover:bg-red-700"
-      >
-        Clear All Todos
-      </button>
         <ToastContainer />
       </>
     </div>

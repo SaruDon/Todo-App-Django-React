@@ -4,7 +4,6 @@ from . import views
 
 urlpatterns =[
   path("todos", views.todo_list),
-  path("todosdel", views.delete_all_todos),
   path("todos/<int:pk>", views.todo_details)
 ]
 
