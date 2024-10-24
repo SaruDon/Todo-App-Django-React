@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+  
 
 const TodoSearch = ({ addTodo }) => {
   const [task, setTask] = useState("");
@@ -9,7 +8,7 @@ const TodoSearch = ({ addTodo }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent form from reloading the page
-    toast.success('Todo added successfully', { position: 'top-right' });    if (task.trim()) {
+    if (task.trim()) {
       addTodo({ task }); // Call the addTodo function passed as a prop
       setTask(""); // Clear the input field after submission
     }
