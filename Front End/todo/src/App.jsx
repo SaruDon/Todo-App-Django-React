@@ -35,6 +35,7 @@ function App() {
   // Add todo function
   const addTodo = async (data) => {
     const originalTodos = [...todos];
+    console.log("data",data)
     setLoading(true);
 
     try {
