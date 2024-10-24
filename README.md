@@ -18,7 +18,7 @@ This is a full-stack To-Do application built using Django and React.js. It allow
 
 ## Live Demo
 
-Check out the live version of the app here: [To-Do App](https://todo-app-django-react-3o9g.vercel.app/)
+Check out the live version of the app here: (Please wait for the toaster to confirm your request. The response time is slow because of the free hosting.) [To-Do App](https://todo-app-django-react-3o9g.vercel.app/)
 
 ## Installation
 
