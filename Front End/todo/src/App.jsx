@@ -17,12 +17,14 @@ function App() {
 
   useEffect(()=>{
     setLoading(true); // Set loading to true before fetching data
+    console.log("gettingd data");
     axios.get("https://todo-app-django-react-1.onrender.com/todos")
     .then(res =>{
       setTodos(res.data)
     })
     .catch(err=> setErrors(err.message))
     .finally(() => setLoading(false));
+    console.log("got data");
   },[setTodos]);
 
 
