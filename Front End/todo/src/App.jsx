@@ -34,22 +34,29 @@ function App() {
 
   // Add todo function
   const addTodo = async (data) => {
-    const originalTodos = [...todos];
-    console.log("data",data)
+    const originalTodos = [...todos];  // Backup of the original todos
+    const newTodo = { ...data, status: 'Active' };  // Set status locally to 'pending'
+    
+    // Optimistically update the local state by adding the new todo with 'pending' status
+    setTodos([...todos, newTodo]);
+  
     setLoading(true);
-
+  
     try {
+      // Make the API call to save the new todo on the server
       const res = await axios.post("https://todo-app-django-react-1.onrender.com/todos", data);
-      setTodos([...todos, res.data]);
+      console.log(res); 
       toast.success('Todo added successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
+      // If there's an error, revert back to the original state
       setErrors(err.message);
-      setTodos(originalTodos);
+      setTodos(originalTodos);  // Revert to original todos array
       toast.error('Failed to add todo', { position: toast.POSITION.TOP_RIGHT });
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Delete function
   const delTodo = async (id) => {
@@ -71,11 +78,12 @@ function App() {
   const updateTodo = async (e, id, text, todo) => {
     e.preventDefault();
     const updatedTodo = { ...todo, task: text, status: "Active" };
-
+    setTodos([...todos,updateTodo])
     setLoading(true);
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      // setTodos(todos.map(t => (t.id === id ? res.data : t)));
+      console.log(res)
       toast.success('Todo updated successfully', { position: toast.POSITION.TOP_RIGHT });
     } catch (err) {
       toast.error('Failed to update todo', { position: toast.POSITION.TOP_RIGHT });
