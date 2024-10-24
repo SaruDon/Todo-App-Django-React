@@ -134,7 +134,7 @@ const completeTodo = async (e, id, todo) => {
 
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
-      {errors && <p className="text-red-500">{erros}</p>}
+      {errors && <p className="text-red-500">{errors}</p>}
         <>
 
           <TodoBody />
