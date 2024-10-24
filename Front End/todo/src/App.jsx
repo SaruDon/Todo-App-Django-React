@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [errors, setErrors] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // can be used to add loader I have not added loader
   const [todos, setTodos] = useState([]);
   const [updatingTodos, setUpdatingTodos] = useState(new Set());
   const [filteredTodos, setFilteredTodos] = useState([]);
@@ -33,7 +33,6 @@ function App() {
     const originalTodos = [...todos];
     const newTodo = { ...data, status: 'Active' };
 
-    // Optimistically update the UI
     setTodos([...todos, newTodo]);
     setFilteredTodos([...filteredTodos, newTodo]);
 
@@ -56,7 +55,6 @@ function App() {
     const originalTodos = [...todos];  // Backup original todos
     const originalFilteredTodos = [...filteredTodos];  // Backup original filtered todos
     
-    // Optimistically remove the todo from both lists
     setTodos(todos.filter(todo => todo.id !== id));
     setFilteredTodos(filteredTodos.filter(todo => todo.id !== id));
   
@@ -81,7 +79,6 @@ function App() {
     const originalTodos = [...todos];  // Backup original todos
     const originalFilteredTodos = [...filteredTodos];  // Backup original filteredTodos
     
-    // Optimistically update the state before the API call
     setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
     setFilteredTodos(filteredTodos.map(t => (t.id === id ? updatedTodo : t)));
     
@@ -124,6 +121,22 @@ function App() {
     setFilteredTodos(todos.filter(todo => todo.status === cat_value));
   };
 
+  const clearTodos = async () => {
+    const originalTodos = [...todos];
+
+    setTodos([]); // Clear the local state
+    setFilteredTodos([]); // Clear filtered todos
+
+    try {
+      await axios.delete("https://todo-app-django-react-1.onrender.com/todos"); // Delete all todos
+      toast.success('All todos deleted successfully', { position: 'top-right' });
+    } catch (err) {
+      setTodos(originalTodos); // Restore the original state on failure
+      setFilteredTodos(originalTodos);
+      toast.error('Failed to delete all todos', { position: 'top-right' });
+    }
+  };
+
   return (
     <div className="w-full mx-auto bg-white rounded-lg p-5 my-5 shadow-lg">
       <>
@@ -136,6 +149,12 @@ function App() {
           complete_todo={completeTodo} 
           filter_todo={filterTodo} 
         />
+        <button 
+        onClick={clearTodos} 
+        className="mb-4 h-10 w-full bg-red-600 text-white rounded-lg cursor-pointer transition duration-300 hover:bg-red-700"
+      >
+        Clear All Todos
+      </button>
         <ToastContainer />
       </>
     </div>
