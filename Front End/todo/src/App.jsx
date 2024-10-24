@@ -59,12 +59,11 @@ function App() {
 
     try {
       await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
-      toast.success('Todo deleted successfully', { position: toast.POSITION.TOP_RIGHT });
+      toast.success('Todo deleted successfully', { position: 'top-right' });
     } catch (err) {
       setErrors(err.message);
       setTodos(originalTodos);
-      setFilteredTodos(originalTodos);
-      toast.error('Failed to delete todo', { position: toast.POSITION.TOP_RIGHT });
+      toast.error('Failed to delete todo', { position: 'top-right' });
     }
   };
 
@@ -80,14 +79,10 @@ function App() {
     setLoading(true);
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      setTodos(todos.map(t => (t.id === id ? res.data : t)));
-      setFilteredTodos(filteredTodos.map(t => (t.id === id ? res.data : t)));
-      toast.success('Todo updated successfully', { position: toast.POSITION.TOP_RIGHT });
+      console.log(res)
+      toast.success('Todo updated successfully', { position: 'top-right' });
     } catch (err) {
-      setErrors(err.message);
-      setTodos(originalTodos); // Revert to the original todos
-      setFilteredTodos(originalTodos);
-      toast.error('Failed to update todo', { position: toast.POSITION.TOP_RIGHT });
+      toast.error('Failed to update todo', { position: 'top-right' });
     } finally {
       setLoading(false);
     }
@@ -104,19 +99,11 @@ function App() {
 
     try {
       const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
-      setTodos(todos.map(t => (t.id === id ? res.data : t)));
-      setFilteredTodos(filteredTodos.map(t => (t.id === id ? res.data : t)));
-      toast.success('Todo completed status updated', { position: toast.POSITION.TOP_RIGHT });
+      setTodos(todos => todos.map(t => (t.id === id && t.completed === updatedTodo.completed ? res.data : t)));
+      toast.success('Todo completed status updated', { position: 'top-right' });
     } catch (err) {
       setTodos(todos.map(t => (t.id === id ? todo : t)));
-      setFilteredTodos(filteredTodos.map(t => (t.id === id ? todo : t)));
-      toast.error('Failed to update todo status', { position: toast.POSITION.TOP_RIGHT });
-    } finally {
-      setUpdatingTodos(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
+      toast.error('Failed to update todo status', { position: 'top-right' });
     }
   };
 
