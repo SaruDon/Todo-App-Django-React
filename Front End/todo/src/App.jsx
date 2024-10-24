@@ -17,7 +17,7 @@ function App() {
 
   useEffect(()=>{
     setLoading(true); // Set loading to true before fetching data
-    axios.get(`${process.env.REACT_APP_API_URL}/todos`)
+    axios.get("https://todo-app-django-react-1.onrender.com/todos")
     .then(res =>{
       setTodos(res.data)
     })
@@ -34,7 +34,7 @@ const addTodo = async (data) => {
   //! 1st wirte the data to database and then make local changes to unsure consistency
 
   try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/todos`, data);
+      const res = await axios.post("https://todo-app-django-react-1.onrender.com/todos", data);
       setTodos([...todos, res.data]);
   } catch (err) {
       setErrors(err.message);
@@ -56,7 +56,7 @@ const addTodo = async (data) => {
     setTodos(todos.filter(todo => todo.id !== id));
 
     try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/todos/${id}`);
+        await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
         console.log("Todo deleted successfully");
     } catch (err) {
         console.error("Error deleting todo:", err);
@@ -77,7 +77,7 @@ const addTodo = async (data) => {
     //! Update in database 1t them in state
     try {
         // Send the updated todo to the backend using a PATCH request
-        const res = await axios.patch(`${process.env.REACT_APP_API_URL}/todos/${id}`, updatedTodo);
+        const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
         console.log("Update successful:", res.data);
         
         setTodos(todos.map(t => (t.id === id ? res.data : t)));
@@ -105,7 +105,7 @@ const completeTodo = async (e, id, todo) => {
   setTodos(todos.map(t => (t.id === id ? updatedTodo : t)));
 
   try {
-    const res = await axios.patch(`${process.env.REACT_APP_API_URL}/todos/${id}`, updatedTodo);
+    const res = await axios.patch(`https://todo-app-django-react-1.onrender.com/todos/${id}`, updatedTodo);
     
     // Ensure the state didn't change while the request was pending
     setTodos(todos => 
