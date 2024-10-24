@@ -128,7 +128,7 @@ function App() {
     setFilteredTodos([]); 
 
     try {
-      await axios.delete("https://todo-app-django-react-1.onrender.com/todosd"); // Delete all todos
+      await axios.delete("https://todo-app-django-react-1.onrender.com/todosdel"); // Delete all todos
       toast.success('All todos deleted successfully', { position: 'top-right' });
     } catch (err) {
       setTodos(originalTodos); // Restore the original state on failure
