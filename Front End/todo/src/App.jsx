@@ -15,18 +15,22 @@ function App() {
   useEffect(() => {
     setLoading(true);
     console.log("getting data");
+
     axios.get("https://todo-app-django-react-1.onrender.com/todos")
       .then(res => {
         setTodos(res.data);
-        toast.success('Todos loaded successfully', { position: toast.POSITION.TOP_RIGHT });
+        console.log("Data received from API:", res.data); // Log the data received
+        toast.success('Todos loaded successfully', { position: 'top-right' });
       })
       .catch(err => {
         setErrors(err.message);
-        toast.error('Failed to load todos', { position: toast.POSITION.TOP_RIGHT });
+        console.error("Error fetching data:", err.message); // Log the error if it occurs
+        toast.error('Failed to load todos', { position: 'top-right' });
       })
       .finally(() => setLoading(false));
-    console.log("got data");
-  }, [setTodos]);
+
+    console.log("API request sent"); // Log when the request is sent
+}, [setTodos]);
 
   // Add todo function
   const addTodo = async (data) => {
