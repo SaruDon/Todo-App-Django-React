@@ -53,19 +53,25 @@ function App() {
 
   // Delete function
   const delTodo = async (id) => {
-    const originalTodos = [...todos];
+    const originalTodos = [...todos];  // Backup original todos
+    const originalFilteredTodos = [...filteredTodos];  // Backup original filtered todos
+    
+    // Optimistically remove the todo from both lists
     setTodos(todos.filter(todo => todo.id !== id));
     setFilteredTodos(filteredTodos.filter(todo => todo.id !== id));
-
+  
     try {
       await axios.delete(`https://todo-app-django-react-1.onrender.com/todos/${id}`);
       toast.success('Todo deleted successfully', { position: 'top-right' });
     } catch (err) {
-      setErrors(err.message);
+      // If delete fails, revert to the original state
       setTodos(originalTodos);
-      toast.error('Failed to delete todo try again', { position: 'top-right' });
+      setFilteredTodos(originalFilteredTodos);
+      setErrors(err.message);
+      toast.error('Failed to delete todo, please try again', { position: 'top-right' });
     }
   };
+  
 
   // Update function
   const updateTodo = async (e, id, text, todo) => {
