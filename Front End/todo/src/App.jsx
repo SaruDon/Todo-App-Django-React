@@ -40,17 +40,15 @@ function App() {
     setLoading(true);
     try {
       const res = await axios.post("https://todo-app-django-react-1.onrender.com/todos", data);
-      setTodos(prevTodos => prevTodos.map(todo => (todo === newTodo ? res.data : todo)));
-      setFilteredTodos(prevTodos => prevTodos.map(todo => (todo === newTodo ? res.data : todo)));
-      toast.success('Todo added successfully', { position: toast.POSITION.TOP_RIGHT });
+      console.log(res); 
+      toast.success('Todo added successfully', { position: 'top-right' });
     } catch (err) {
       setErrors(err.message);
-      setTodos(originalTodos); // Revert to the original todos
-      setFilteredTodos(originalTodos);
-      toast.error('Failed to add todo', { position: toast.POSITION.TOP_RIGHT });
+      setTodos(originalTodos);  // Revert to original todos array
+      toast.error('Failed to add todo', { position: 'top-right' });
     } finally {
       setLoading(false);
-    }
+    }    
   };
 
   // Delete function
