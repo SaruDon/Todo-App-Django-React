@@ -68,7 +68,7 @@ function App() {
       setTodos(originalTodos);
       setFilteredTodos(originalFilteredTodos);
       setErrors(err.message);
-      toast.error('Failed to delete todo, please try again', { position: 'top-right' });
+      toast.error('slow serve, please refresh and Try again ', { position: 'top-right' });
     }
   };
   
