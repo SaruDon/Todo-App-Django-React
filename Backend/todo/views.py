@@ -25,9 +25,9 @@ def todo_list(request):
         serializer = TodoSerializer(todos, many=True)
         return Response(serializer.data)
     
-    elif request.method == "DELETE":
-        Todo.objects.all().delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+@api_view(["DELETE"])
+def delete_all_todos():
+    Todo.objects.all().delete()
     
 
   
