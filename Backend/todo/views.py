@@ -26,7 +26,6 @@ def todo_list(request):
         return Response(serializer.data)
     
     elif request.method == "DELETE":
-        # Deleting all todos
         Todo.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     

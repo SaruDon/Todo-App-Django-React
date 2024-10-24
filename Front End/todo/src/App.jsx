@@ -124,8 +124,8 @@ function App() {
   const clearTodos = async () => {
     const originalTodos = [...todos];
 
-    setTodos([]); // Clear the local state
-    setFilteredTodos([]); // Clear filtered todos
+    setTodos([]); 
+    setFilteredTodos([]); 
 
     try {
       await axios.delete("https://todo-app-django-react-1.onrender.com/todos"); // Delete all todos
