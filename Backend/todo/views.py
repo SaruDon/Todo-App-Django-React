@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 
 
 # Get all Todos
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST" ,"DELETE"])
 def todo_list(request):
     if request.method == "POST":
         # serializing data to create a todo
