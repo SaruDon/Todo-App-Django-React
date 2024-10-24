@@ -32,6 +32,7 @@ SECRET_KEY  = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG","FALSE").lower()=="TRUE"
 
 load_dotenv()
+PORT = os.environ.get('PORT', 8000)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 # Application definition
 
