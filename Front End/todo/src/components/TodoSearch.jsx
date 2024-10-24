@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const TodoSearch = ({ addTodo }) => {
   const [task, setTask] = useState("");
 
+  const notify = () => {
+    toast.success("Wow so easy!", {
+      position: toast.POSITION.TOP_RIGHT, // You can customize the position
+      autoClose: 3000, // Time before auto-close in milliseconds (3000ms = 3 seconds)
+      hideProgressBar: false, // Show/hide progress bar
+      closeOnClick: true, // Close the toast when clicked
+      pauseOnHover: true, // Pause the timer on hover
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent form from reloading the page
-
+    notify();
     if (task.trim()) {
       addTodo({ task }); // Call the addTodo function passed as a prop
       setTask(""); // Clear the input field after submission
